@@ -2,15 +2,12 @@ import time
 import os
 import uuid
 import tempfile
-from langchain_core.output_parsers import StrOutputParser
 from langchain_upstage import UpstageEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
 
 from langchain_upstage import ChatUpstage
-from langchain_core.messages import HumanMessage, SystemMessage
-
 from langchain.chains import create_history_aware_retriever
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
@@ -26,7 +23,7 @@ api_key = os.getenv("solar_key")
 
 
 st.title("ᖗ( ᐛ )ᖘ")
-
+st.caption("한식을 추천해 드려요!")
 
 if "id" not in st.session_state:   #세션 생성 및 초기화 세션을 실행할때마다 초기화되는데 입력한 정보들이 초기화되는걸 막아준다. 이전대화와 지금대화를 분리해서 저장시켜준다.
     st.session_state.id = uuid.uuid4()
@@ -41,7 +38,7 @@ def reset_chat():
 
 loader = PyMuPDFLoader("/home/aca123/project_1/food.pdf")
 doc = loader.load()
-splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=50)
+splitter = RecursiveCharacterTextSplitter(chunk_size=1500,chunk_overlap=50)
 split_doc = splitter.split_documents(doc)
 
 embeddings = UpstageEmbeddings(
@@ -51,7 +48,7 @@ embeddings = UpstageEmbeddings(
 
 vectorstore = FAISS.from_documents(documents=split_doc, embedding=embeddings)
 
-retriever = vectorstore.as_retriever(k=7)  #검색기로 만들기
+retriever = vectorstore.as_retriever(k=5)  #검색기로 만들기
 
 
 chat = ChatUpstage(upstage_api_key=os.getenv("solar_key")) #chat_bot 생성
@@ -82,6 +79,7 @@ qa_system_prompt = """당신은 한국의 특정 지역에서 유명한 음식�
 - 추천할 지역 특색 음식은 **3~7가지**로 제한합니다.
 - 각 음식의 **특징, 맛, 간단한 유래 또는 배경**을 설명하여 흥미를 유발합니다.
 - 사용자가 질문한 지역과 해당 음식이 **밀접한 관련**이 있어야 합니다.
+- 중복되는 음식이 있으면 하나만 설명해주세요.
 - (선택 사항) 만약 해당 지역에 대한 사용자 기분 정보(context)가 있다면, 그에 맞춰 음식을 선택하거나 설명을 조절합니다.
 
 다음 사항을 지켜서 답변을 작성해 주세요:
@@ -120,19 +118,20 @@ if prompt := st.chat_input("채팅을 입력하세요 :)"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        full_response = ""
+        with st.spinner("생각중...."):
+            message_placeholder = st.empty()
+            full_response = ""
 
-        result = rag_chain.invoke({"input": prompt, "chat_history": st.session_state.messages})
+            result = rag_chain.invoke({"input": prompt, "chat_history": st.session_state.messages})
 
-        with st.expander("Evidence context"):
-            st.write(result["context"])
+            with st.expander("참고용"):
+                st.write(result["context"])
 
-        for chunk in result["answer"].split(" "):
-            full_response += chunk + " "
-            time.sleep(0.2)
-            message_placeholder.markdown(full_response)
+            for chunk in result["answer"].split(" "):
+                full_response += chunk + " "
+                time.sleep(0.2)
+                message_placeholder.markdown(full_response)
 
 
-    st.session_state.messages.append(
-        {"role": "assistant","content": full_response})
+        st.session_state.messages.append(
+            {"role": "assistant","content": full_response})
