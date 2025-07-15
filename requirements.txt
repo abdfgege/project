@@ -1,6 +1,0 @@
-langchain_upstage
-langchain_FAISS
-langchain_community
-python-dotenv
-openai
-streamlit
