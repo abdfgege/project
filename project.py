@@ -38,7 +38,7 @@ def reset_chat():
 
 loader = PyMuPDFLoader("/home/aca123/project_1/food.pdf")
 doc = loader.load()
-splitter = RecursiveCharacterTextSplitter(chunk_size=1500,chunk_overlap=50)
+splitter = RecursiveCharacterTextSplitter(chunk_size=750,chunk_overlap=50)
 split_doc = splitter.split_documents(doc)
 
 embeddings = UpstageEmbeddings(
@@ -68,26 +68,22 @@ history_aware_retriever = create_history_aware_retriever(
     chat, retriever, contextualize_q_prompt
 )
 
-qa_system_prompt = """당신은 한국의 특정 지역에서 유명한 음식을 따뜻하고 친근하게 추천해주는 미식 비서입니다.
+qa_system_prompt = """당신은 한국의 전통 음식을 따뜻하고 친근하게 소개해주는 미식 비서입니다. 당신의 목표는 사용자가 요청한 한국의 전통 음식을 간결하고 알차게 설명하는 것입니다.
 
 사용자의 선호도나 기분은 다음과 같습니다:
 {context}
 
-사용자가 특정 지역의 '유명한 음식'을 물어볼 경우, 해당 지역의 **대표적인 향토 음식 또는 특산물을 활용한 요리**를 추천해 주세요.
-
 다음 기준을 반드시 고려해 주세요:
-- 추천할 지역 특색 음식은 **3~7가지**로 제한합니다.
+- 추천할 한국 전통 음식은 **4~7가지**로 제한합니다. (사용자가 특정 지역을 명시하지 않으면 보편적인 전통 음식을 추천합니다.)
 - 각 음식의 **특징, 맛, 간단한 유래 또는 배경**을 설명하여 흥미를 유발합니다.
-- 사용자가 질문한 지역과 해당 음식이 **밀접한 관련**이 있어야 합니다.
 - 중복되는 음식이 있으면 하나만 설명해주세요.
-- (선택 사항) 만약 해당 지역에 대한 사용자 기분 정보(context)가 있다면, 그에 맞춰 음식을 선택하거나 설명을 조절합니다.
+- (선택 사항) 만약 해당 음식에 대한 사용자 기분 정보(context)가 있다면, 그에 맞춰 설명을 조절합니다.
 
 다음 사항을 지켜서 답변을 작성해 주세요:
-- **친근하고 따뜻한 말투**로, 마치 현지 정보를 잘 아는 친구처럼 자연스럽게 안내해 주세요.
-- 답변의 시작은 사용자의 방문/질문에 대한 **공감과 환영**으로 시작합니다.
-- 추천하는 음식에 대한 **간결하고 매력적인 설명**을 제공합니다.
-- 답변의 마무리는 사용자에게 도움이 되는 **간단한 조언이나 기분 좋은 인사**로 마무리합니다.
-- 만약 적절한 지역 유명 음식 추천이 어렵다면, 솔직하게 "정보가 부족하여 추천이 어렵습니다"라고 말해주세요.
+- **친근하고 따뜻한 말투**를 유지하되, **서론이나 인삿말을 해준 후 바로 음식 소개를 시작**하세요.
+- 추천하는 음식에 대한 **간결하고 매력적인 설명**을 제공합니다. 각 음식 설명 사이에 구분선(---)을 넣어주세요.
+- 답변의 마무리에 **별도의 조언이나 인사는 생략**하고, 음식 설명이 모두 끝난 후 깔끔하게 종료해 주세요.
+- 만약 적절한 전통 음식 추천이 어렵다면, 솔직하게 "정보가 부족하여 추천이 어렵습니다"라고 말해주세요.
 """
 qa_prompt = ChatPromptTemplate.from_messages(
     [
@@ -124,7 +120,7 @@ if prompt := st.chat_input("채팅을 입력하세요 :)"):
 
             result = rag_chain.invoke({"input": prompt, "chat_history": st.session_state.messages})
 
-            with st.expander("참고용"):
+            with st.expander("참고한 자료"):
                 st.write(result["context"])
 
             for chunk in result["answer"].split(" "):

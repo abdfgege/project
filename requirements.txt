@@ -1,0 +1,6 @@
+langchain_upstage
+langchain_chroma 
+langchain_community
+python-dotenv
+openai
+streamlit
