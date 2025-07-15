@@ -103,7 +103,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-MAX_MESSAGES_BEFORE_DELETION = 10  #prompt비용처리
+MAX_MESSAGES_BEFORE_DELETION = 8  #prompt비용처리
 
 if prompt := st.chat_input("채팅을 입력하세요 :)"):
     if len(st.session_state.messages) >= MAX_MESSAGES_BEFORE_DELETION:
