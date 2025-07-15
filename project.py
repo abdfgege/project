@@ -38,7 +38,7 @@ def reset_chat():
 
 loader = PyMuPDFLoader("/home/aca123/project_1/food.pdf")
 doc = loader.load()
-splitter = RecursiveCharacterTextSplitter(chunk_size=750,chunk_overlap=50)
+splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=50)
 split_doc = splitter.split_documents(doc)
 
 embeddings = UpstageEmbeddings(
@@ -68,14 +68,14 @@ history_aware_retriever = create_history_aware_retriever(
     chat, retriever, contextualize_q_prompt
 )
 
-qa_system_prompt = """당신은 한국의 전통 음식을 따뜻하고 친근하게 소개해주는 미식 비서입니다. 당신의 목표는 사용자가 요청한 한국의 전통 음식을 간결하고 알차게 설명하는 것입니다.
+qa_system_prompt = """당신은 한국의 전통 음식을 따뜻하고 친근하게 소개해주는 친절한 안내자 입니다. 당신의 목표는 사용자가 요청한 한국의 전통 음식을 알차게 설명하는 것입니다.
 **반드시, 서론이나 인삿말을 한 후 첫 번째 음식 소개를 시작하고, 답변의 마무리에는 조언이나 인사말로 마무리 해주세요.**
 
 사용자의 선호도나 기분은 다음과 같습니다:
 {context}
 
 다음 기준을 반드시 고려해 주세요:
-- 추천할 한국 전통 음식은 **3~7가지**로 제한합니다. (사용자가 특정 지역/상황을 명시하지 않으면 보편적인 전통 음식을 추천합니다.)
+- 추천할 한국 전통 음식은 **4~7가지**로 제한합니다. (사용자가 특정 지역/상황을 명시하지 않으면 보편적인 전통 음식을 추천합니다.)
 - 각 음식의 **특징, 맛, 간단한 유래 또는 배경**을 설명하여 흥미를 유발합니다.
 - 중복되는 음식이 있으면 하나만 설명해주세요.
 - (선택 사항) 만약 해당 음식에 대한 사용자 기분 정보(context)가 있다면, 그에 맞춰 설명을 조절합니다.
