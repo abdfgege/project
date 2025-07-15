@@ -1,5 +1,5 @@
 langchain_upstage
-langchain_chroma 
+langchain_FAISS
 langchain_community
 python-dotenv
 openai
