@@ -22,6 +22,7 @@
 
 - Python 3.9+ 버전이 설치되어 있어야 합니다.
 - Git이 설치되어 있어야 합니다.
+- requirements.txt를 받아서 설치해야 합니다.
 
 ### 실행시키기
 ```bash
@@ -31,3 +32,50 @@ cd project/project_1 # 프로젝트 폴더 경로가 project_1이라면 이 명�
 solar_key="YOUR_UPSTAGE_SOLAR_API_KEY"(Solar홈페이지 들어가서 로그인후 키 받기)
 
 streamlit run your_app_file_name.py(streamlit run Project.py)
+```
+## 코드분석
+### 코드내에 파일 불러오기
+```bash
+loader = PyMuPDFLoader("/home/aca123/project_1/food.pdf")
+doc = loader.load()
+splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=50)
+split_doc = splitter.split_documents(doc)
+```
+
+### 문서를 읽을 수 있게 임베딩 시키기
+```bash
+embeddings = UpstageEmbeddings(
+    api_key=api_key,
+    model="solar-embedding-1-large"
+)
+```
+
+### 검색기로 만들기
+```bash
+vectorstore = FAISS.from_documents(documents=split_doc, embedding=embeddings)
+
+retriever = vectorstore.as_retriever(k=5)
+```
+
+### 챗봇 및 프롬프트 생성
+```bash
+chat = ChatUpstage(upstage_api_key=os.getenv("solar_key")) #chat_bot 생성
+
+contextualize_q_system_prompt = """사용자에게 받은 질문을 해석해서 지금 사용자가 어떤걸 선호하는지, 기분은 어떠한지를
+차근차근 분석해 풀어써서 질문을 세세하게 답변하기 쉽게 재구성 시켜주세요."""
+
+contextualize_q_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", contextualize_q_system_prompt),
+        MessagesPlaceholder("chat_history"),
+        ("human", "{input}"),
+    ]
+)
+```
+
+### 출력처리
+```bash
+if prompt := st.chat_input("채팅을 입력하세요 :)"):
+    if len(st.session_state.messages) >= MAX_MESSAGES_BEFORE_DELETION:
+        del st.session_state.messages[0]
+```
