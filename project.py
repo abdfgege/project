@@ -1,31 +1,28 @@
-import time
 import os
+import time
 import uuid
-import tempfile
-from langchain_upstage import UpstageEmbeddings
-from langchain_community.vectorstores import FAISS
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyMuPDFLoader
+import streamlit as st
 
+from setting import load_pdf, embed,search
+from dotenv import load_dotenv
 from langchain_upstage import ChatUpstage
 from langchain.chains import create_history_aware_retriever
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from openai import OpenAI 
-from dotenv import load_dotenv
-import streamlit as st
-
 
 load_dotenv()
 api_key = os.getenv("solar_key")
 
+split_doc= load_pdf()
+embeddings = embed(api_key)
+retriever = search(split_doc, embeddings)
 
 st.title("ᖗ( ᐛ )ᖘ")
 st.caption("한식을 추천해 드려요!")
 
-if "id" not in st.session_state:   #세션 생성 및 초기화 세션을 실행할때마다 초기화되는데 입력한 정보들이 초기화되는걸 막아준다. 이전대화와 지금대화를 분리해서 저장시켜준다.
+#세션 생성 및 초기화 세션을 실행할때마다 초기화되는데 입력한 정보들이 초기화되는걸 막아준다. 이전대화와 지금대화를 분리해서 저장시켜준다.
+if "id" not in st.session_state:   
     st.session_state.id = uuid.uuid4()
     st.session_state.file_cache = {}
 
@@ -36,22 +33,7 @@ def reset_chat():
     st.session_state.messages = [] #이전에 나눈 대화를 저장해놓는 공간, 채팅 초기화 함수
     st.session_state.context = None
 
-loader = PyMuPDFLoader("/home/aca123/project_1/food.pdf")
-doc = loader.load()
-splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=50)
-split_doc = splitter.split_documents(doc)
-
-embeddings = UpstageEmbeddings(
-    api_key=api_key,
-    model="solar-embedding-1-large"
-)
-
-vectorstore = FAISS.from_documents(documents=split_doc, embedding=embeddings)
-
-retriever = vectorstore.as_retriever(k=5)  #검색기로 만들기
-
-
-chat = ChatUpstage(upstage_api_key=os.getenv("solar_key")) #chat_bot 생성
+chat = ChatUpstage(upstage_api_key=api_key) #chat_bot 생성
 
 contextualize_q_system_prompt = """사용자에게 받은 질문을 해석해서 지금 사용자가 어떤걸 선호하는지, 기분은 어떠한지를
 차근차근 분석해 풀어써서 질문을 세세하게 답변하기 쉽게 재구성 시켜주세요."""
