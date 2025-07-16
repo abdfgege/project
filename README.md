@@ -32,15 +32,19 @@ cd project/project_1 # 프로젝트 폴더 경로가 project_1이라면 이 명�
 solar_key="YOUR_UPSTAGE_SOLAR_API_KEY"(Solar홈페이지 들어가서 로그인후 키 받기)
 
 streamlit run your_app_file_name.py(streamlit run Project.py)
+
 ```
-## 코드분석
+## 간단 코드분석
+
 ### 코드내에 파일 불러오기
 ```bash
 loader = PyMuPDFLoader("/home/aca123/project_1/food.pdf")
 doc = loader.load()
 splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=50)
 split_doc = splitter.split_documents(doc)
+
 ```
+
 
 ### 문서를 읽을 수 있게 임베딩 시키기
 ```bash
@@ -48,14 +52,18 @@ embeddings = UpstageEmbeddings(
     api_key=api_key,
     model="solar-embedding-1-large"
 )
+
 ```
+
 
 ### 검색기로 만들기
 ```bash
 vectorstore = FAISS.from_documents(documents=split_doc, embedding=embeddings)
 
 retriever = vectorstore.as_retriever(k=5)
+
 ```
+
 
 ### 챗봇 및 프롬프트 생성
 ```bash
@@ -71,11 +79,14 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages(
         ("human", "{input}"),
     ]
 )
+
 ```
+
 
 ### 출력처리
 ```bash
 if prompt := st.chat_input("채팅을 입력하세요 :)"):
     if len(st.session_state.messages) >= MAX_MESSAGES_BEFORE_DELETION:
         del st.session_state.messages[0]
+
 ```
