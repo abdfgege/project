@@ -5,6 +5,7 @@ from langchain_upstage import UpstageEmbeddings
 from langchain_community.vectorstores import FAISS
 
 
+# 파일로더
 def load_pdf():
     loader = PyMuPDFLoader("/home/aca123/project_1/food.pdf")
     doc = loader.load()
@@ -14,6 +15,7 @@ def load_pdf():
     return  split_doc
 
 
+# 임베딩
 def embed(api_key):
     embeddings = UpstageEmbeddings(
         api_key=api_key,
@@ -21,6 +23,8 @@ def embed(api_key):
     )
     return embeddings
 
+
+# 검색기
 def search(split_doc, embeddings):
     vectorstore = FAISS.from_documents(documents=split_doc, embedding=embeddings)
 
