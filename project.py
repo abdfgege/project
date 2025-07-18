@@ -13,7 +13,8 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
 load_dotenv()
-api_key = os.getenv("solar_key")
+os.environ["solar_key"] = st.secrets
+["solar_key"]
 
 split_doc= load_pdf()
 embeddings = embed(api_key)
