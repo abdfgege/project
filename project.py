@@ -12,9 +12,9 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
-load_dotenv()
-os.environ["solar_key"] = st.secrets
-["solar_key"]
+# load_dotenv()
+#해당 코드는 스트리릿 시크릿 사용시 활성화
+os.environ["solar_key"] = st.secrets["solar_key"]
 
 split_doc= load_pdf()
 embeddings = embed(api_key)
