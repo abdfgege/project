@@ -1,5 +1,6 @@
 langchain_upstage
 langchain_FAISS
+langchain_Chorma
 langchain_community
 python-dotenv
 openai
