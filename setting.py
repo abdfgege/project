@@ -15,6 +15,17 @@ def load_pdf():
     return loader.load()
 
 
+def chunk():
+    doc = load_pdf()
+
+    # 로드된 문서를 청크로 분할
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=50)
+    split_doc = splitter.split_documents(doc)
+    
+    return split_doc
+
+
+
 # 임베딩
 def embed(api_key):
     embeddings = UpstageEmbeddings(
