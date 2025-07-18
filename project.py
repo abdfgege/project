@@ -2,7 +2,7 @@ import os
 import time
 import uuid
 import streamlit as st
-
+from langchain_community.chat_message_histories import RedisChatMessageHistory
 from prompt import prompt1, prompt2
 from setting import load_pdf, embed,search
 from dotenv import load_dotenv
@@ -19,7 +19,7 @@ split_doc= load_pdf()
 embeddings = embed(api_key)
 retriever = search(split_doc, embeddings)
 
-st.title("ᖗ( ᐛ )ᖘ")
+st.set_page_config(page_title="camellia", page_icon="ᖗ( ᐛ )ᖘ")
 st.caption("한식을 추천해 드려요!")
 
 #세션 생성 및 초기화 세션을 실행할때마다 초기화되는데 입력한 정보들이 초기화되는걸 막아준다. 이전대화와 지금대화를 분리해서 저장시켜준다.
