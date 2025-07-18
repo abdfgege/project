@@ -4,7 +4,7 @@ import uuid
 import streamlit as st
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 from prompt import prompt1, prompt2
-from setting import load_pdf, embed,search
+from setting import load_pdf,chunk, embed,search
 from dotenv import load_dotenv
 from langchain_upstage import ChatUpstage
 from langchain.chains import create_history_aware_retriever
@@ -15,7 +15,8 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 load_dotenv()
 api_key = os.getenv("solar_key")
 
-split_doc= load_pdf()
+dev = load_pdf()
+split_doc = chunk()
 embeddings = embed(api_key)
 retriever = search(split_doc, embeddings)
 
