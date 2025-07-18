@@ -1,18 +1,18 @@
 import os
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
+from pathlib import Path
 from langchain_upstage import UpstageEmbeddings
 from langchain_community.vectorstores import FAISS
 
 
 # 파일로더
 def load_pdf():
-    loader = PyMuPDFLoader("/home/aca123/project_1/food.pdf")
-    doc = loader.load()
-    splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=50)
-    split_doc = splitter.split_documents(doc)
-
-    return  split_doc
+    file_path = Path(__file__).parent / "food.pdf"
+    if not file_path.exists():
+        raise FileNotFoundError(f"{file_path} 파일이 존재하지 않습니다.")
+    loader = PyMuPDFLoader(str(file_path))
+    return loader.load()
 
 
 # 임베딩
